@@ -50,7 +50,7 @@ class ChristmasTree
 
     static void GenerateTrunk(int levels, int height)
     {
-        Console.ForegroundColor = ConsoleColor.Gry;
+        Console.ForegroundColor = ConsoleColor.Gray;
         for (int i = 0; i < height; i++)
         {
             Console.Write(new string(' ', levels - 1));
