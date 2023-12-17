@@ -1,56 +1,68 @@
-﻿using System;
+using System;
 using System.Threading;
 
 class ChristmasTree
 {
     static void Main(string[] args)
     {
-        Console.WriteLine("Wpisz ile poziomów ma mieć drzewko:");
+        Console.WriteLine("Enter the number of levels for the Christmas tree:");
         int treeLevels = int.Parse(Console.ReadLine());
 
-        Console.WriteLine("Wpisz ile poziomów ma mieć pień:");
+        Console.WriteLine("Enter the height of the trunk:");
         int trunkHeight = int.Parse(Console.ReadLine());
 
-        while (true) 
+        // Generate the tree with placeholders for lights
+        char[][] tree = GenerateTree(treeLevels);
+
+        // Display each level of the tree one by one
+        for (int i = 0; i < treeLevels; i++)
         {
             Console.Clear();
-            GenerateTree(treeLevels);
-            GenerateTrunk(treeLevels, trunkHeight);
-            Thread.Sleep(1000); 
+            DisplayTree(tree, i + 1);
+            Thread.Sleep(500); // Delay between each level
         }
+
+        // Display the trunk last
+        GenerateTrunk(treeLevels, trunkHeight);
+
+        // Wait for 3 seconds before showing lights
+        Thread.Sleep(3000);
+
+        // Start the light flashing loop
+        StartLightFlashing(tree, treeLevels, trunkHeight);
     }
 
-    static void GenerateTree(int levels)
+    static char[][] GenerateTree(int levels)
     {
+        char[][] tree = new char[levels][];
         for (int i = 0; i < levels; i++)
         {
-            
-            Console.Write(new string(' ', levels - i - 1));
-
-           
+            tree[i] = new char[2 * i + 1];
             for (int j = 0; j < (2 * i + 1); j++)
             {
-                if (RandomLight() && j % 2 == 0) 
-                {
-                    Console.ForegroundColor = GetRandomConsoleColor();
-                    Console.Write('o');
-                    Console.ResetColor();
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Write('*');
-                    Console.ResetColor();
-                }
+                tree[i][j] = '*'; // Initially, all are tree parts
             }
+        }
+        return tree;
+    }
 
-            Console.WriteLine();
+    static void DisplayTree(char[][] tree, int levelsToShow)
+    {
+        for (int i = 0; i < levelsToShow; i++)
+        {
+            // Print spaces for alignment
+            Console.Write(new string(' ', tree.Length - i - 1));
+
+            // Display tree parts
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(new string(tree[i]));
+            Console.ResetColor();
         }
     }
 
     static void GenerateTrunk(int levels, int height)
     {
-        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.ForegroundColor = ConsoleColor.DarkYellow; // Closest to brown
         for (int i = 0; i < height; i++)
         {
             Console.Write(new string(' ', levels - 1));
@@ -59,16 +71,47 @@ class ChristmasTree
         Console.ResetColor();
     }
 
-    static bool RandomLight()
+    static void StartLightFlashing(char[][] tree, int treeLevels, int trunkHeight)
     {
-        Random rnd = new Random();
-        return rnd.Next(2) == 0; // Randomly return true or false
+        // Initial color of the lights
+        ConsoleColor lightColor = ConsoleColor.Yellow;
+
+        while (true) // Loop for alternating lights
+        {
+            Console.Clear();
+            DisplayTreeWithLights(tree, treeLevels, lightColor);
+            GenerateTrunk(treeLevels, trunkHeight);
+            Thread.Sleep(1000); // Wait for 1 second
+
+            // Alternate light color
+            lightColor = lightColor == ConsoleColor.Yellow ? ConsoleColor.Red : ConsoleColor.Yellow;
+        }
     }
 
-    static ConsoleColor GetRandomConsoleColor()
+    static void DisplayTreeWithLights(char[][] tree, int levels, ConsoleColor lightColor)
     {
-        var consoleColors = Enum.GetValues(typeof(ConsoleColor));
-        Random rnd = new Random();
-        return (ConsoleColor)consoleColors.GetValue(rnd.Next(consoleColors.Length));
+        for (int i = 0; i < levels; i++)
+        {
+            // Print spaces for alignment
+            Console.Write(new string(' ', tree.Length - i - 1));
+
+            // Display tree parts and lights
+            for (int j = 0; j < tree[i].Length; j++)
+            {
+                if (j % 2 == 0) // Positions for lights
+                {
+                    Console.ForegroundColor = lightColor;
+                    Console.Write('o');
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write(tree[i][j]);
+                    Console.ResetColor();
+                }
+            }
+            Console.WriteLine();
+        }
     }
 }
